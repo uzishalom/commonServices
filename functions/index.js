@@ -1,6 +1,9 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const validateEmail = require("./utils/validate-email");
+const sendMailConfig = require("./configs/sendMailConfig");
+const nodemailer = require('nodemailer');
+
 
 admin.initializeApp();
 
@@ -25,7 +28,31 @@ const sendMail = functions.https.onRequest((req, res) => {
         return;
     }
 
-    res.send("OK")
+    // sending the mail 
+    const transporter = nodemailer.createTransport({
+        service: sendMailConfig.serviceName,
+        auth: {
+            user: sendMailConfig.username,
+            pass: sendMailConfig.password
+        }
+    });
+
+    const mailOptions = {
+        from: sendMailConfig.fromEmail,
+        to: email,
+        subject: subject,
+        text: message
+    };
+    //self signed certificate in certificate chain"
+    transporter.sendMail(mailOptions, (err, result) => {
+        if (err) {
+            console.log(err);
+            res.json({ "err": err.message })
+        } else {
+            console.log('Email sent: ' + result.response);
+            res.json({ "status": "ok" })
+        }
+    });
 })
 
 module.exports = {
