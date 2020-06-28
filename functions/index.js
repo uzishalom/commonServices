@@ -10,6 +10,8 @@ admin.initializeApp();
 // Send Email
 // local test: http://localhost:5001/commonservices-a50f5/us-central1/sendMail
 const sendMail = functions.https.onRequest((req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
 
     if (!("email" in req.body && "subject" in req.body && "message" in req.body)) {
         res.json({ "err": "Missing Parameters" });
